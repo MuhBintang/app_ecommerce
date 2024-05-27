@@ -1,0 +1,10 @@
+D:/SEMESTER6/projectmobile/ecommerceapp/app_ecommerce/build/windows/x64/CMakeFiles/INSTALL.dir
+D:/SEMESTER6/projectmobile/ecommerceapp/app_ecommerce/build/windows/x64/CMakeFiles/ALL_BUILD.dir
+D:/SEMESTER6/projectmobile/ecommerceapp/app_ecommerce/build/windows/x64/CMakeFiles/ZERO_CHECK.dir
+D:/SEMESTER6/projectmobile/ecommerceapp/app_ecommerce/build/windows/x64/flutter/CMakeFiles/flutter_wrapper_plugin.dir
+D:/SEMESTER6/projectmobile/ecommerceapp/app_ecommerce/build/windows/x64/flutter/CMakeFiles/flutter_wrapper_app.dir
+D:/SEMESTER6/projectmobile/ecommerceapp/app_ecommerce/build/windows/x64/flutter/CMakeFiles/flutter_assemble.dir
+D:/SEMESTER6/projectmobile/ecommerceapp/app_ecommerce/build/windows/x64/flutter/CMakeFiles/INSTALL.dir
+D:/SEMESTER6/projectmobile/ecommerceapp/app_ecommerce/build/windows/x64/runner/CMakeFiles/app_ecommerce.dir
+D:/SEMESTER6/projectmobile/ecommerceapp/app_ecommerce/build/windows/x64/runner/CMakeFiles/INSTALL.dir
+D:/SEMESTER6/projectmobile/ecommerceapp/app_ecommerce/build/windows/x64/runner/CMakeFiles/ALL_BUILD.dir
