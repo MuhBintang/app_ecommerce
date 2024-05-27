@@ -1,0 +1,1 @@
+ D:\\SEMESTER6\\projectmobile\\ecommerceapp\\app_ecommerce\\.dart_tool\\flutter_build\\2b81047e5350112bf43c0f468f61db34\\native_assets.yaml: 
