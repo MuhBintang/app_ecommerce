@@ -1,4 +1,5 @@
 import 'package:app_ecommerce/screen_page/splashscreen.dart';
+import 'package:app_ecommerce/screens/login_register/register_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -12,12 +13,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      debugShowCheckedModeBanner: false,
+      title: 'E Commerce App',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
       home: SplashScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
