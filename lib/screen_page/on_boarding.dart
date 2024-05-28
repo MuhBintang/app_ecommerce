@@ -1,123 +1,187 @@
+import 'package:app_ecommerce/screens/login_register/login_screen.dart';
+import 'package:app_ecommerce/screens/login_register/register_screen.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:onboarding_slider_flutter/onboarding_slider_flutter.dart';
+import 'package:flutter_onboarding_slider/flutter_onboarding_slider.dart';
+class OnBoardingScreen extends StatelessWidget {
+  final Color redshoes = const Color(0xFFEB3C3C);
 
-void main() {
-  runApp(const App());
-}
-
-class App extends StatelessWidget {
-  const App({super.key});
+  const OnBoardingScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: HomeScreen(),
-    );
-  }
-}
-
-class HomeScreen extends StatelessWidget {
-  final PageController _pageController = PageController();
-
-  HomeScreen({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            child: OnBoard(
-              pageController: _pageController,
-              onSkip: () {},
-              onDone: () {},
-              onBoardData: onBoardData,
-              titleStyles: const TextStyle(
-                color: Color.fromARGB(255, 0, 0, 0),
-                fontSize: 24,
-                fontWeight: FontWeight.w600,
+    return OnBoardingSlider(
+      finishButtonText: 'Register',
+      onFinish: () {
+        Navigator.push(
+          context,
+          CupertinoPageRoute(
+            builder: (context) => const RegisterScreen(),
+          ),
+        );
+      },
+      finishButtonStyle: FinishButtonStyle(
+        backgroundColor: redshoes,
+      ),
+      skipTextButton: Text(
+        'Skip',
+        style: TextStyle(
+          fontSize: 16,
+          color: redshoes,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      trailing: Text(
+        'Login',
+        style: TextStyle(
+          fontSize: 16,
+          color: redshoes,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      trailingFunction: () {
+        Navigator.push(
+          context,
+          CupertinoPageRoute(
+            builder: (context) => const LoginScreen(),
+          ),
+        );
+      },
+      controllerColor: redshoes,
+      totalPage: 3,
+      headerBackgroundColor: Colors.white,
+      pageBackgroundColor: Colors.white,
+      background: [
+        Center(
+          child: Image.asset(
+            'images/img1.png',
+            height: 400,
+            width: 420,
+          ),
+        ),
+        Center(
+          child: Image.asset(
+            'images/img2.png',
+            height: 400,
+            width: 420,
+          ),
+        ),
+        Center(
+          child: Image.asset(
+            'images/img3.png',
+            height: 400,
+            width: 420,
+          ),
+        ),
+      ],
+      speed: 1.8,
+      pageBodies: [
+        Container(
+          alignment: Alignment.center,
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.symmetric(horizontal: 40),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              const SizedBox(
+                height: 480,
               ),
-              descriptionStyles: const TextStyle(
-                fontSize: 16,
-                color: Color.fromARGB(255, 0, 0, 0),
-                fontWeight: FontWeight.w400,
-              ),
-              pageIndicatorStyle: const PageIndicatorStyle(
-                width: 50,
-                inactiveColor: Color(0xff9CC2E1),
-                activeColor: Color.fromARGB(255, 177, 68, 255),
-                inactiveSize: Size(12, 5),
-                activeSize: Size(12, 5),
-              ),
-              startButton: Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      width: 358,
-                      height: 42,
-                      child: ElevatedButton(
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                            Color.fromARGB(255, 177, 68, 255),
-                          ),
-                        ),
-                        child: const Text(
-                          "Get Started",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xfffdfdfd),
-                          ),
-                        ),
-                        onPressed: () {},
-                      ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    SizedBox(
-                      width: 358,
-                      height: 42,
-                      child: TextButton(
-                        child: const Text(
-                          "Already Have Account?",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Colors.purple,
-                          ),
-                        ),
-                        onPressed: () {},
-                      ),
-                    ),
-                  ],
+              Text(
+                'Various Collections Of The Latest Products',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: redshoes,
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-              imageWidth: 320,
-              imageHeight: 320,
-            ),
+              const SizedBox(
+                height: 20,
+              ),
+              const Text(
+                'Discover the latest fashion collections, exclusive shoes, and trendy sneakers ready to complement your style',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.black26,
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+        Container(
+          alignment: Alignment.center,
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.symmetric(horizontal: 40),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              const SizedBox(
+                height: 480,
+              ),
+              Text(
+                'Complete Collections Of Colors And Sizes',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: redshoes,
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              const Text(
+                'Enjoy an easy and enjoyable shopping experience with our advanced features',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.black26,
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          alignment: Alignment.center,
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.symmetric(horizontal: 40),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              const SizedBox(
+                height: 480,
+              ),
+              Text(
+                'Find The Most Suitable \nOutfit For You',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: redshoes,
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              const Text(
+                'Dont miss the special offers and attractive promos that we have prepared especially for you.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.black26,
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
-
-final List<OnBoardModel> onBoardData = [
-  const OnBoardModel(
-    title: "Various Collections Of The \nLatest Products",
-    description:
-        "Discover the latest fashion collections, exclusive jewelry,\n and trendy bags ready to complement your style",
-    image: 'gambar/img.jpg',
-  ),
-  const OnBoardModel(
-    title: "Complete Collections Of Colors And Sizes",
-    description:
-        "Enjoy an easy and enjoyable shopping experience with \nour advanced features",
-    image: 'gambar/img2.jpg',
-  ),
-  const OnBoardModel(
-    title: "Find The Most Suitable \nOutfit For You",
-    description:
-        "Don't miss the special offers and attractive promos \nthat we have prepared especially for you.",
-    image: 'gambar/img1.jpg',
-  ),
-];

@@ -1,5 +1,10 @@
+import 'package:app_ecommerce/const.dart';
+import 'package:app_ecommerce/main.dart';
+import 'package:app_ecommerce/model/model_login.dart';
 import 'package:app_ecommerce/screens/home/home_screen.dart';
+import 'package:app_ecommerce/utils/cek_session.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -13,6 +18,62 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
 
   bool _isPasswordVisible = false;
+
+  GlobalKey<FormState> keyForm = GlobalKey<FormState>();
+
+  bool isLoading = false;
+
+  Future<ModelLogin?> loginAccount() async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+
+      http.Response res = await http.post(Uri.parse('$url/login.php'), body: {
+        "password": _passwordController.text,
+        "email": _emailController.text
+      });
+      ModelLogin data = modelLoginFromJson(res.body);
+      //cek kondisi (ini berdasarkan value respon api
+      //value ,1 (ada data login),dan 0 (gagal)
+      if (data.value == 1) {
+        setState(() {
+          //save session
+          session.saveSession(
+              data.value ?? 0,
+              data.id ?? "",
+              data.username ?? "",
+              data.address ?? "",
+              data.email ?? "",
+              );
+
+          isLoading = false;
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('${data.message}')));
+
+          //pindah ke page berita
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const BottomNavBar()),
+              (route) => false);
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('${data.message}')));
+        });
+      }
+    } catch (e) {
+      //munculkan error
+      setState(() {
+        isLoading = false;
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.toString())));
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -73,7 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(50),
                       ),
-                      primary: Color(0xFF5E60CE),
+                      primary: Color(0xFFEB3C3C),
                     ),
                     child: Text(
                       'Send Code',
@@ -151,7 +212,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(50),
                       ),
-                      primary: Color(0xFF5E60CE),
+                      primary: Color(0xFFEB3C3C),
                     ),
                     child: Text(
                       'Change Password',
@@ -232,7 +293,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       });
                     },
                   ),
-                  labelText: 'Create your password',
+                  labelText: 'Enter your password',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -260,13 +321,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => HomeScreen()));
+                    // Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //         builder: (context) => HomeScreen()));
+                    loginAccount();
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Color(0xFF5E60CE),
+                    primary: Color(0xFFEB3C3C),
                     padding: EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -292,8 +354,8 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                                    onPressed: () {
-                    // Handle Google sign up logic here
+                    onPressed: () {
+                    // Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
                   },
                   icon: Image.asset("images/google.png", width: 20, height: 20,),
                   label: Text('Sign Up with Google', style: TextStyle(color: Colors.black),),
@@ -311,7 +373,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    // Handle Facebook sign up logic here
+                    // Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
                   },
                   icon: Icon(Icons.facebook, color: Colors.blue),
                   label: Text('Sign Up with Facebook', style: TextStyle(color: Colors.black),),

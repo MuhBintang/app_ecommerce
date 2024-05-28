@@ -1,5 +1,7 @@
 import 'package:app_ecommerce/screens/login_register/login_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:email_auth/email_auth.dart';
 
 class VerificationScreen extends StatefulWidget {
   @override
@@ -11,7 +13,76 @@ class _VerificationScreenState extends State<VerificationScreen> {
   final TextEditingController _codeController2 = TextEditingController();
   final TextEditingController _codeController3 = TextEditingController();
   final TextEditingController _codeController4 = TextEditingController();
-  String email = 'beta@gmail.com';
+  // final TextEditingController emailcontroller = TextEditingController();
+  // final TextEditingController otpcontroller = TextEditingController();
+  String? email;
+  EmailAuth emailAuth = EmailAuth(sessionName: "Ecommerce Session");
+
+  Future<void> getSession() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    setState(() {
+      email = pref.getString("username");
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getSession().then((_) {
+      if (email != null) {
+        sendOTP();
+      }
+    });
+  }
+
+  Future<void> sendOTP() async {
+    if (email == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Email is null, cannot send OTP")),
+      );
+      return;
+    }
+    try {
+      bool result = await emailAuth.sendOtp(recipientMail: email!);
+      if (!result) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to send OTP")),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("OTP sent successfully")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error sending OTP: $e")),
+      );
+    }
+  }
+
+  // void sendOTP() async {
+  //   emailAuth.sessionName = "Test Session";
+  //   var res = await emailAuth.sendOtp(recipientMail: email!); 
+  //   if (res){
+  //     print("OTP Send"); 
+  //   } else {
+  //     print("Problem OTP");
+  //   }
+  // }
+
+  // void verifyOTP() async {
+  //   var res = emailAuth.validateOtp(recipientMail: email!.toString() , userOtp: _codeController1.text + _codeController2.text + _codeController3.text + _codeController4.text);
+  //   if (res){
+  //     print("OTP Verified"); 
+  //   } else {
+  //     print("Invalid OTP");
+  //   }
+  // }
+
+  bool verifyOTP() {
+    String otp = _codeController1.text + _codeController2.text + _codeController3.text + _codeController4.text;
+    return emailAuth.validateOtp(recipientMail: email!, userOtp: otp);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +93,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.pop(context);  // Menangani tombol kembali untuk kembali ke halaman sebelumnya
+            Navigator.pop(context);
           },
         ),
       ),
@@ -35,7 +106,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
             Center(
               child: CircleAvatar(
                 radius: 40,
-                backgroundColor: Color(0xFF5E60CE),
+                backgroundColor: Color(0xFFEB3C3C),
                 child: Icon(Icons.email, color: Colors.white, size: 40),
               ),
             ),
@@ -55,7 +126,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
             ),
             Center(
               child: Text(
-                email,
+                "$email",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
@@ -69,17 +140,49 @@ class _VerificationScreenState extends State<VerificationScreen> {
                 _buildCodeInput(_codeController4),
               ],
             ),
+            // TextField(
+            //   controller: emailcontroller,
+            //   keyboardType: TextInputType.emailAddress,
+            //   decoration: InputDecoration(
+            //     hintText: "Enter Email", 
+            //     labelText: "Email", 
+            //     suffixIcon: TextButton(
+            //       child: Text("Send OTP"),
+            //       onPressed: () => sendOTP(),
+            //     )
+            //   ),
+            // ),
+            // SizedBox(height: 30),
+            // TextField(
+            //   controller: otpcontroller,
+            //   keyboardType: TextInputType.number,
+            //   decoration: InputDecoration(
+            //     hintText: "Enter OTP", 
+            //     labelText: "OTP", 
+            //   ),
+            // ),
             SizedBox(height: 30),
             ElevatedButton(
               onPressed: () {
-                _showSuccessDialog();
+                // if (verifyOTP()) {
+                //   _showSuccessDialog();
+                // } else {
+                //   ScaffoldMessenger.of(context).showSnackBar(
+                //     SnackBar(content: Text("Invalid OTP")),
+                //   );
+                // }
+                Navigator.pop(context);
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginScreen()),
+                  );
               },
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(vertical: 15),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                primary: Color(0xFF5E60CE),
+                primary: Color(0xFFEB3C3C),
               ),
               child: Text(
                 'Submit',
@@ -89,12 +192,13 @@ class _VerificationScreenState extends State<VerificationScreen> {
             SizedBox(height: 20),
             Center(
               child: TextButton(
+                // onPressed: () => sendOTP(),
                 onPressed: () {
-                  // Logic untuk mengirim ulang kode verifikasi
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
                 },
                 child: Text(
-                  "Didn't receive the code? Resend",
-                  style: TextStyle(color: Color(0xFF5E60CE)),
+                  "Resend OTP?",
+                  style: TextStyle(color: Color(0xFFEB3C3C)),
                 ),
               ),
             ),
@@ -152,7 +256,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
               SizedBox(height: 50),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context); // Close the bottom sheet
+                  Navigator.pop(context);
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => LoginScreen()),
@@ -163,7 +267,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(50),
                   ),
-                  primary: Color(0xFF5E60CE),
+                  primary: Color(0xFFEB3C3C),
                 ),
                 child: Text(
                   'Go to HomePage',

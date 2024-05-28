@@ -1,5 +1,10 @@
+import 'package:app_ecommerce/const.dart';
+import 'package:app_ecommerce/model/model_register.dart';
+import 'package:app_ecommerce/screens/login_register/login_screen.dart';
 import 'package:app_ecommerce/screens/login_register/verification_screen.dart';
+import 'package:app_ecommerce/utils/cek_session.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -12,8 +17,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
   
   bool _isPasswordVisible = false;
+  GlobalKey<FormState> keyForm = GlobalKey<FormState>();
+  //fungsi untuk post data
+  bool isLoading = false;
 
   @override
   void dispose() {
@@ -21,6 +30,67 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<ModelRegister?> registerAccount() async {
+    
+    try {
+      setState(() {
+        isLoading = true;
+      });
+
+      http.Response res = await http.post(Uri.parse('$url/register.php'),
+        body: {
+            "username" : _usernameController.text,
+            "email" : _emailController.text,
+            "password" : _passwordController.text,
+            "address" : _addressController.text,
+        }
+      );
+
+     ModelRegister data = modelRegisterFromJson(res.body);
+      //cek kondisi (ini berdasarkan value respon api
+      //value 2 (email sudah terdaftar),1 (berhasil),dan 0 (gagal)
+      if(data.value == 1){
+        setState(() {
+          isLoading= false;
+          session.saveSession(
+          data.value ?? 0,
+          data.username ?? "",
+          data.email ?? "",
+          data.address ?? "",
+          data.password ?? "",
+        );
+          //pindah ke page login
+          Navigator.pushAndRemoveUntil(context,
+              MaterialPageRoute(builder: (context)
+                => VerificationScreen()), (route) => false);
+        });
+      }else if(data.value == 2){
+        setState(() {
+          isLoading= false;
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('${data.message}'))
+          );
+        });
+      }else{
+        setState(() {
+          isLoading= false;
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('${data.message}'))
+          );
+        });
+      }
+
+    }catch(e){
+      //munculkan error
+      setState(() {
+          isLoading= false;
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(e.toString()))
+          );
+      });
+    }
   }
 
   @override
@@ -85,6 +155,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 SizedBox(height: 16),
                 Text(
+                  "Your Address",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 20),
+                TextField(
+                  controller: _addressController,
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.home_outlined),
+                    labelText: 'Enter your address',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16),
+                Text(
                   "Password",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
@@ -117,10 +203,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => VerificationScreen()));
+                      // Navigator.push(context, MaterialPageRoute(builder: (context) => registerAccount()));
+                      registerAccount();
                     },
                     style: ElevatedButton.styleFrom(
-                      primary: Color(0xFF5E60CE),
+                      primary: Color(0xFFEB3C3C),
                       padding: EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
