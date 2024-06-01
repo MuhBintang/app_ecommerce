@@ -1,9 +1,11 @@
 import 'package:app_ecommerce/model/model_product.dart';
+import 'package:app_ecommerce/screens/home/list_all_scren.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:app_ecommerce/const.dart';
 import 'package:http/http.dart' as http;
+import 'detail_product_screen.dart'; // Import the DetailProductScreen
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -77,10 +79,11 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.only(left: 20.0),
               child: Align(
                 alignment: Alignment.topLeft,
-                child: Text(
-                  'Hi, ${username ?? 'User'}',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
+                child: 
+                    Text(
+                      'Hi, ${username ?? 'User'}',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
               ),
             ),
             SizedBox(height: 20), // Add some space between the text and the buttons
@@ -210,12 +213,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(                      'New Arrival',
+                    Text('New Arrival',
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     TextButton(
                       onPressed: () {
-                        // Add your "See all" button functionality here
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => ListProductAll()));
                       },
                       child: Text(
                         'See all',
@@ -227,63 +230,62 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             // List of New Arrival Shoes
             if (_selectedCategory == 0) // Hanya tampilkan produk jika kategori yang dipilih adalah "Home"
-              GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
-                children: List.generate(10, (index) {
-                  return Padding(
-                    padding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 10.0), // Tambah jarak vertikal di sini
-                    child: GestureDetector(
-                      onTap: () {
-                        // Add your onTap functionality here
-                      },
-                      child: Card(
-                        elevation: 2.0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(10.0),
-                                topRight: Radius.circular(10.0),
+              FutureBuilder<List<Datum>?>(
+                future: getProduct(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Center(child: Text('No products available.'));
+                  } else {
+                    List<Datum> products = snapshot.data!.take(2).toList(); // Display only the first 2 products
+                    return GridView.count(
+                      crossAxisCount: 2,
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
+                      children: List.generate(products.length, (index) {
+                        Datum product = products[index];
+                        return Padding(
+                          padding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 10.0), // Tambah jarak vertikal di sini
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailProductScreen(product: product),
+                                ),
+                              );
+                            },
+                            child: Card(
+                              elevation: 2.0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
                               ),
-                              child: FutureBuilder<List<Datum>?>(
-                                future: getProduct(),
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    return Image.network(
-                                      '$url/gambar/${snapshot.data![index].productImage}',
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(10.0),
+                                      topRight: Radius.circular(10.0),
+                                    ),
+                                    child: Image.network(
+                                      '$url/gambar/${product.productImage}',
                                       fit: BoxFit.contain,
                                       width: double.infinity,
                                       height: 135.0,
-                                    );
-                                  } else if (snapshot.hasError) {
-                                    return Center(
-                                      child: Text('Error: ${snapshot.error}'),
-                                    );
-                                  }
-                                  return Center(
-                                    child: CircularProgressIndicator(),
-                                  );
-                                },
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: FutureBuilder<List<Datum>?>(
-                                future: getProduct(),
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    return Column(
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          '${snapshot.data![index].productName}',
+                                          product.productName,
                                           style: TextStyle(
                                             fontSize: 16.0,
                                             fontWeight: FontWeight.bold,
@@ -291,29 +293,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                         SizedBox(height: 8), // Tambah jarak vertikal di sini
                                         Text(
-                                          '\$${snapshot.data![index].productPrice}',
+                                          '\$${product.productPrice}',
                                           style: TextStyle(
                                             fontSize: 14.0,
                                             color: Colors.grey,
                                           ),
                                         ),
                                       ],
-                                    );
-                                  } else if (snapshot.hasError) {
-                                    return Center(
-                                      child: Text('Error: ${snapshot.error}'),
-                                    );
-                                  }
-                                  return SizedBox(); // Return an empty widget while loading
-                                },
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                }),
+                          ),
+                        );
+                      }),
+                    );
+                  }
+                },
               ),
           ],
         ),
@@ -321,4 +318,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-

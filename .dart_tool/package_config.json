@@ -122,6 +122,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "increment_decrement_form_field",
+      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/increment_decrement_form_field-1.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
       "name": "intl",
       "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/intl-0.18.1",
       "packageUri": "lib/",
@@ -326,7 +332,7 @@
       "languageVersion": "2.19"
     }
   ],
-  "generated": "2024-05-28T18:17:26.899904Z",
+  "generated": "2024-06-01T05:00:14.356742Z",
   "generator": "pub",
   "generatorVersion": "2.19.0"
 }

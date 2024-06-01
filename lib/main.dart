@@ -2,6 +2,7 @@ import 'package:app_ecommerce/screen_page/splashscreen.dart';
 import 'package:app_ecommerce/screens/favourite/favourite_screen.dart';
 import 'package:app_ecommerce/screens/home/home_screen.dart';
 import 'package:app_ecommerce/screens/login_register/login_screen.dart';
+import 'package:app_ecommerce/screen_page/splashscreen.dart';
 import 'package:app_ecommerce/screens/login_register/register_screen.dart';
 import 'package:app_ecommerce/screens/my_cart/my_cart_screen.dart';
 import 'package:app_ecommerce/screens/profile/profile_screen.dart';
