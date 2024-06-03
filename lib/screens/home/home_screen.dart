@@ -1,5 +1,14 @@
+import 'package:app_ecommerce/main.dart';
+import 'package:app_ecommerce/model/model_insertfav.dart';
+import 'package:app_ecommerce/model/model_listaddtocart.dart';
 import 'package:app_ecommerce/model/model_product.dart';
+import 'package:app_ecommerce/screens/category/category_casual.dart';
+import 'package:app_ecommerce/screens/category/category_sneaker.dart';
+import 'package:app_ecommerce/screens/category/category_sport.dart';
+import 'package:app_ecommerce/screens/category/category_wanita.dart';
 import 'package:app_ecommerce/screens/home/list_all_scren.dart';
+import 'package:app_ecommerce/screens/my_cart/checkout_screen.dart';
+import 'package:app_ecommerce/screens/my_cart/order_tracking_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -14,10 +23,11 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>{
   String? username, id;
   late CarouselController _carouselController;
   int _selectedCategory = 0; // Menambahkan variabel untuk menyimpan kategori yang dipilih
+  Set<String> favoriteProductIds = {};
 
   Future<void> getSession() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -42,10 +52,49 @@ class _HomeScreenState extends State<HomeScreen> {
       return modelProductFromJson(res.body).data;
     } catch (e) {
       setState(() {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(e.toString())));
+        // ScaffoldMessenger.of(context)
+        //     .showSnackBar(SnackBar(content: Text(e.toString())));
       });
       return null;
+    }
+  }
+
+  Future<void> addFav(String productId) async {
+    try {
+      http.Response res = await http.post(
+        Uri.parse('$url/insertfavorite.php'),
+        body: {
+          "id_user": id!,
+          "id_product": productId,
+        },
+      );
+
+      ModelInsertFavorite data = modelInsertFavoriteFromJson(res.body);
+
+      if (data.isSuccess) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("item dimasukkan difavorite"),
+          backgroundColor: Colors.green,
+        ));
+
+        // Perbarui status favorit
+        setState(() {
+          favoriteProductIds.add(productId);
+          Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (context) => BottomNavBar(initialIndex: 2),
+          ));
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("item sudah ada difavorite : ${data.message}"),
+          backgroundColor: Colors.red,
+        ));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("item sudah ada difavorite"),
+        backgroundColor: Colors.red,
+      ));
     }
   }
 
@@ -76,14 +125,31 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 20.0),
-              child: Align(
-                alignment: Alignment.topLeft,
-                child: 
-                    Text(
-                      'Hi, ${username ?? 'User'}',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
+              padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Hi, ${username ?? 'User'}',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.notifications), 
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => OrderTrackingScreen()));
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.history), // Icon untuk riwayat
+                        onPressed: () {
+                          // Navigator.push(context, MaterialPageRoute(builder: (context) => CheckoutScreen(products: products)));
+                        },
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
             SizedBox(height: 20), // Add some space between the text and the buttons
@@ -137,24 +203,44 @@ class _HomeScreenState extends State<HomeScreen> {
               Column(
                 children: [
                   SizedBox(height: 20), // Berikan jarak antara banner
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Image.asset('images/banner1.png', width: MediaQuery.of(context).size.width - 40),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => CategorySneaker()));
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Image.asset('images/banner1.png', width: MediaQuery.of(context).size.width - 40),
+                    ),
                   ),
                   SizedBox(height: 20), // Berikan jarak antara banner
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Image.asset('images/banner2.png', width: MediaQuery.of(context).size.width - 40),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => CategorySport()));
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Image.asset('images/banner2.png', width: MediaQuery.of(context).size.width - 40),
+                    ),
                   ),
                   SizedBox(height: 20), // Berikan jarak antara banner
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Image.asset('images/banner3.png', width: MediaQuery.of(context).size.width - 40),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => CategoryCasual()));
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Image.asset('images/banner3.png', width: MediaQuery.of(context).size.width - 40),
+                    ),
                   ),
                   SizedBox(height: 20), // Berikan jarak antara banner
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Image.asset('images/banner4.png', width: MediaQuery.of(context).size.width - 40),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => CategoryWanita()));
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Image.asset('images/banner4.png', width: MediaQuery.of(context).size.width - 40),
+                    ),
                   ),
                   SizedBox(height: 20), // Berikan jarak antara banner
                 ],
@@ -248,6 +334,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
                       children: List.generate(products.length, (index) {
                         Datum product = products[index];
+                        bool isFavorite = favoriteProductIds.contains(product.id);
                         return Padding(
                           padding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 10.0), // Tambah jarak vertikal di sini
                           child: GestureDetector(
@@ -267,17 +354,34 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(10.0),
-                                      topRight: Radius.circular(10.0),
-                                    ),
-                                    child: Image.network(
-                                      '$url/gambar/${product.productImage}',
-                                      fit: BoxFit.contain,
-                                      width: double.infinity,
-                                      height: 135.0,
-                                    ),
+                                  Stack(
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(10.0),
+                                          topRight: Radius.circular(10.0),
+                                        ),
+                                        child: Image.network(
+                                          '$url/gambar/${product.productImage}',
+                                          fit: BoxFit.contain,
+                                          width: double.infinity,
+                                          height: 135.0,
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: 5,
+                                        right: 5,
+                                        child: IconButton(
+                                          icon: Icon(
+                                            isFavorite ? Icons.favorite : Icons.favorite_border,
+                                            color: isFavorite ? Colors.red : Colors.grey,
+                                          ),
+                                          onPressed: () {
+                                            addFav(product.id);
+                                          },
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),
@@ -293,7 +397,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                         SizedBox(height: 8), // Tambah jarak vertikal di sini
                                         Text(
-                                          '\$${product.productPrice}',
+                                          '\Rp. ${product.productPrice}',
                                           style: TextStyle(
                                             fontSize: 14.0,
                                             color: Colors.grey,

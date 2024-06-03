@@ -1,7 +1,10 @@
+import 'package:app_ecommerce/const.dart';
+import 'package:app_ecommerce/model/model_verify.dart';
 import 'package:app_ecommerce/screens/login_register/login_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:email_auth/email_auth.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class VerificationScreen extends StatefulWidget {
   @override
@@ -13,75 +16,68 @@ class _VerificationScreenState extends State<VerificationScreen> {
   final TextEditingController _codeController2 = TextEditingController();
   final TextEditingController _codeController3 = TextEditingController();
   final TextEditingController _codeController4 = TextEditingController();
-  // final TextEditingController emailcontroller = TextEditingController();
-  // final TextEditingController otpcontroller = TextEditingController();
   String? email;
-  EmailAuth emailAuth = EmailAuth(sessionName: "Ecommerce Session");
+  String? address;
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    getSession();
+  }
 
   Future<void> getSession() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     setState(() {
       email = pref.getString("username");
+      address = pref.getString("address");
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-    getSession().then((_) {
-      if (email != null) {
-        sendOTP();
-      }
-    });
-  }
-
-  Future<void> sendOTP() async {
-    if (email == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Email is null, cannot send OTP")),
-      );
-      return;
-    }
+  Future<ModelVerify?> OTPverify() async {
     try {
-      bool result = await emailAuth.sendOtp(recipientMail: email!);
-      if (!result) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Failed to send OTP")),
-        );
+      setState(() {
+        isLoading = true;
+      });
+      print(email);
+      http.Response res =
+          await http.post(Uri.parse('$url/otp_verify.php'), body: {
+        "email": email,
+        "otp": (_codeController1.text +
+            _codeController2.text +
+            _codeController3.text +
+            _codeController4.text)
+      });
+
+      ModelVerify data = modelVerifyFromJson(res.body);
+      //cek kondisi (ini berdasarkan value respon api
+      //value 2 (email sudah terdaftar),1 (berhasil),dan 0 (gagal)
+      if (data.value == 1) {
+        setState(() {
+          isLoading = false;
+          _showSuccessDialog();
+        });
+      } else if (data.value == 2) {
+        setState(() {
+          isLoading = false;
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('${data.message}')));
+        });
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("OTP sent successfully")),
-        );
+        setState(() {
+          isLoading = false;
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('${data.message}')));
+        });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error sending OTP: $e")),
-      );
+      //munculkan error
+      setState(() {
+        isLoading = false;
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.toString())));
+      });
     }
-  }
-
-  // void sendOTP() async {
-  //   emailAuth.sessionName = "Test Session";
-  //   var res = await emailAuth.sendOtp(recipientMail: email!); 
-  //   if (res){
-  //     print("OTP Send"); 
-  //   } else {
-  //     print("Problem OTP");
-  //   }
-  // }
-
-  // void verifyOTP() async {
-  //   var res = emailAuth.validateOtp(recipientMail: email!.toString() , userOtp: _codeController1.text + _codeController2.text + _codeController3.text + _codeController4.text);
-  //   if (res){
-  //     print("OTP Verified"); 
-  //   } else {
-  //     print("Invalid OTP");
-  //   }
-  // }
-
-  bool verifyOTP() {
-    String otp = _codeController1.text + _codeController2.text + _codeController3.text + _codeController4.text;
-    return emailAuth.validateOtp(recipientMail: email!, userOtp: otp);
   }
 
   @override
@@ -140,42 +136,15 @@ class _VerificationScreenState extends State<VerificationScreen> {
                 _buildCodeInput(_codeController4),
               ],
             ),
-            // TextField(
-            //   controller: emailcontroller,
-            //   keyboardType: TextInputType.emailAddress,
-            //   decoration: InputDecoration(
-            //     hintText: "Enter Email", 
-            //     labelText: "Email", 
-            //     suffixIcon: TextButton(
-            //       child: Text("Send OTP"),
-            //       onPressed: () => sendOTP(),
-            //     )
-            //   ),
-            // ),
-            // SizedBox(height: 30),
-            // TextField(
-            //   controller: otpcontroller,
-            //   keyboardType: TextInputType.number,
-            //   decoration: InputDecoration(
-            //     hintText: "Enter OTP", 
-            //     labelText: "OTP", 
-            //   ),
-            // ),
             SizedBox(height: 30),
             ElevatedButton(
               onPressed: () {
-                // if (verifyOTP()) {
-                //   _showSuccessDialog();
-                // } else {
-                //   ScaffoldMessenger.of(context).showSnackBar(
-                //     SnackBar(content: Text("Invalid OTP")),
-                //   );
-                // }
-                Navigator.pop(context);
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginScreen()),
-                  );
+                print(_codeController1.text +
+                    _codeController2.text +
+                    _codeController3.text +
+                    _codeController4.text);
+
+                OTPverify();
               },
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(vertical: 15),
@@ -192,10 +161,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
             SizedBox(height: 20),
             Center(
               child: TextButton(
-                // onPressed: () => sendOTP(),
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
-                },
+                onPressed: () => LoginScreen(),
                 child: Text(
                   "Resend OTP?",
                   style: TextStyle(color: Color(0xFFEB3C3C)),
@@ -238,8 +204,13 @@ class _VerificationScreenState extends State<VerificationScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Image.asset("images/checkverif.png", scale: 5,),
-              SizedBox(height: 80,),
+              Image.asset(
+                "images/checkverif.png",
+                scale: 5,
+              ),
+              SizedBox(
+                height: 80,
+              ),
               Text(
                 'Verification Successful',
                 style: TextStyle(
@@ -256,11 +227,10 @@ class _VerificationScreenState extends State<VerificationScreen> {
               SizedBox(height: 50),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginScreen()),
-                  );
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginScreen()),
+                      (route) => false);
                 },
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
@@ -274,7 +244,9 @@ class _VerificationScreenState extends State<VerificationScreen> {
                   style: TextStyle(fontSize: 18),
                 ),
               ),
-              SizedBox(height: 50,)
+              SizedBox(
+                height: 50,
+              )
             ],
           ),
         );

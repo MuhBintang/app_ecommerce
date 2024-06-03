@@ -1,4 +1,5 @@
 import 'package:app_ecommerce/const.dart';
+import 'package:app_ecommerce/model/model_otp_send.dart';
 import 'package:app_ecommerce/model/model_register.dart';
 import 'package:app_ecommerce/screens/login_register/login_screen.dart';
 import 'package:app_ecommerce/screens/login_register/verification_screen.dart';
@@ -18,10 +19,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
-  
+
   bool _isPasswordVisible = false;
   GlobalKey<FormState> keyForm = GlobalKey<FormState>();
-  //fungsi untuk post data
   bool isLoading = false;
 
   @override
@@ -29,68 +29,94 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _addressController.dispose();
     super.dispose();
   }
 
   Future<ModelRegister?> registerAccount() async {
-    
     try {
+      if (!mounted) return null;
       setState(() {
         isLoading = true;
       });
 
-      http.Response res = await http.post(Uri.parse('$url/register.php'),
-        body: {
-            "username" : _usernameController.text,
-            "email" : _emailController.text,
-            "password" : _passwordController.text,
-            "address" : _addressController.text,
-        }
-      );
-
-     ModelRegister data = modelRegisterFromJson(res.body);
-      //cek kondisi (ini berdasarkan value respon api
-      //value 2 (email sudah terdaftar),1 (berhasil),dan 0 (gagal)
-      if(data.value == 1){
-        setState(() {
-          isLoading= false;
-          session.saveSession(
-          data.value ?? 0,
-          data.username ?? "",
-          data.email ?? "",
-          data.address ?? "",
-          data.password ?? "",
-        );
-          //pindah ke page login
-          Navigator.pushAndRemoveUntil(context,
-              MaterialPageRoute(builder: (context)
-                => VerificationScreen()), (route) => false);
-        });
-      }else if(data.value == 2){
-        setState(() {
-          isLoading= false;
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('${data.message}'))
-          );
-        });
-      }else{
-        setState(() {
-          isLoading= false;
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('${data.message}'))
-          );
-        });
-      }
-
-    }catch(e){
-      //munculkan error
-      setState(() {
-          isLoading= false;
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(e.toString()))
-          );
+      http.Response res =
+          await http.post(Uri.parse('$url/register.php'), body: {
+        "username": _usernameController.text,
+        "email": _emailController.text,
+        "password": _passwordController.text,
+        "address": _addressController.text,
       });
+
+      if (!mounted) return null;
+      ModelRegister data = modelRegisterFromJson(res.body);
+      if (data.value == 1) {
+        if (!mounted) return null;
+        setState(() {
+          isLoading = false;
+        });
+        session.saveSession(data.value ?? 0, data.username ?? "",
+            data.email ?? "", data.address ?? "", data.status ?? "");
+        OTPsend();
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => VerificationScreen()),
+            (route) => false);
+      } else {
+        if (!mounted) return null;
+        setState(() {
+          isLoading = false;
+        });
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('${data.message}')));
+      }
+    } catch (e) {
+      if (!mounted) return null;
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.toString())));
     }
+    return null;
+  }
+
+  Future<ModelOtpSend?> OTPsend() async {
+    try {
+      if (!mounted) return null;
+      setState(() {
+        isLoading = true;
+      });
+
+      http.Response res = await http.post(Uri.parse('$url/otp_send.php'),
+          body: {"email": _emailController.text});
+
+      if (!mounted) return null;
+      ModelOtpSend data = modelOtpSendFromJson(res.body);
+      if (data.value == 1) {
+        if (!mounted) return null;
+        setState(() {
+          isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Code OTP dikirim ke email anda')));
+      } else {
+        if (!mounted) return null;
+        setState(() {
+          isLoading = false;
+        });
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('${data.message}')));
+      }
+    } catch (e) {
+      if (!mounted) return null;
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.toString())));
+    }
+    return null;
   }
 
   @override
@@ -203,7 +229,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      // Navigator.push(context, MaterialPageRoute(builder: (context) => registerAccount()));
                       registerAccount();
                     },
                     style: ElevatedButton.styleFrom(
@@ -234,10 +259,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      // Handle Google sign up logic here
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => LoginScreen()));
                     },
-                    icon: Image.asset("images/google.png", width: 20, height: 20,),
-                    label: Text('Sign Up with Google', style: TextStyle(color: Colors.black),),
+                    icon: Image.asset(
+                      "images/google.png",
+                      width: 20,
+                      height: 20,
+                    ),
+                    label: Text(
+                      'Login',
+                      style: TextStyle(color: Colors.black),
+                    ),
                     style: ElevatedButton.styleFrom(
                       primary: Colors.white,
                       padding: EdgeInsets.symmetric(vertical: 16),
@@ -255,7 +290,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       // Handle Facebook sign up logic here
                     },
                     icon: Icon(Icons.facebook, color: Colors.blue),
-                    label: Text('Sign Up with Facebook', style: TextStyle(color: Colors.black),),
+                    label: Text(
+                      'Sign Up with Facebook',
+                      style: TextStyle(color: Colors.black),
+                    ),
                     style: ElevatedButton.styleFrom(
                       primary: Colors.white,
                       padding: EdgeInsets.symmetric(vertical: 16),

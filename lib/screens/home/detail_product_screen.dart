@@ -1,7 +1,12 @@
+import 'dart:convert';
+import 'package:app_ecommerce/main.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:app_ecommerce/model/model_product.dart';
 import 'package:app_ecommerce/const.dart';
 import 'package:increment_decrement_form_field/increment_decrement_form_field.dart';
+import 'package:intl/intl.dart';
 
 class DetailProductScreen extends StatefulWidget {
   final Datum product;
@@ -14,6 +19,99 @@ class DetailProductScreen extends StatefulWidget {
 
 class _DetailProductScreenState extends State<DetailProductScreen> {
   String selectedColor = 'red';
+  late String userId;
+
+  @override
+  void initState() {
+    super.initState();
+    getSession();
+  }
+
+  Future<void> getSession() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    setState(() {
+      userId = pref.getString("id") ?? '';
+    });
+  }
+
+  void addToCart() async {
+    // Ambil id_product dari widget.product.id
+    String idProduct = widget.product.id.toString();
+
+    // Ambil id_user dari sesi yang sudah disimpan sebelumnya
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String? userId = pref.getString("id");
+
+    // Cek jika id_user tidak null
+    if (userId != null) {
+      // Siapkan data yang akan dikirim
+      Map<String, String> data = {
+        'id_product': idProduct,
+        'id_user': userId,
+      };
+
+      // Kirim permintaan POST ke addtocart.php
+      try {
+        http.Response response = await http.post(
+          Uri.parse('$url/addtocart.php'),
+          body: data,
+        );
+
+        // Periksa status respons
+        if (response.statusCode == 200) {
+          // Parse JSON respons
+          var jsonResponse = jsonDecode(response.body);
+          bool isSuccess = jsonResponse['isSuccess'];
+          String message = jsonResponse['message'];
+
+          // Tampilkan pesan respons dalam snackbar
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(message),
+              backgroundColor: isSuccess ? Colors.green : Colors.red,
+            ),
+          );
+
+          // Arahkan pengguna ke BottomNavBar()
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BottomNavBar(),
+            ),
+          );
+        } else {
+          // Tampilkan pesan jika terjadi kesalahan dalam permintaan
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: ${response.reasonPhrase}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        // Tangani kesalahan jika terjadi
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } else {
+      // Tampilkan pesan jika id_user tidak ditemukan dalam sesi
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('User ID not found in session.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  String formatCurrency(int amount) {
+    final format = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ');
+    return format.format(amount);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +193,7 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                             ),
                             SizedBox(height: 16.0),
                             Text(
-                              '\$${widget.product.productPrice}',
+                              formatCurrency(int.parse(widget.product.productPrice)),
                               style: TextStyle(
                                 fontSize: 20.0,
                                 color: Colors.grey,
@@ -170,7 +268,7 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                               onDecrement: (currentValue) {
                                 return currentValue! - 1;
                               },
-                              onIncrement: (currentValue) {
+                              onIncrement:(currentValue) {
                                 return currentValue! + 1;
                               },
                             ),
@@ -204,7 +302,7 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '\$${widget.product.productPrice}',
+                      formatCurrency(int.parse(widget.product.productPrice)),
                       style: TextStyle(
                         fontSize: 24.0,
                         fontWeight: FontWeight.bold,
@@ -212,9 +310,7 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                       ),
                     ),
                     ElevatedButton(
-                      onPressed: () {
-                        // Handle add to cart action
-                      },
+                      onPressed: addToCart,
                       style: ElevatedButton.styleFrom(
                         primary: Colors.red,
                         padding: EdgeInsets.symmetric(

@@ -1,5 +1,5 @@
 import 'package:app_ecommerce/screen_page/splashscreen.dart';
-import 'package:app_ecommerce/screens/favourite/favourite_screen.dart';
+import 'package:app_ecommerce/screens/home/favorit_screen.dart';
 import 'package:app_ecommerce/screens/home/home_screen.dart';
 import 'package:app_ecommerce/screens/login_register/login_screen.dart';
 import 'package:app_ecommerce/screen_page/splashscreen.dart';
@@ -12,9 +12,7 @@ import 'dart:async';
 import 'package:flutter/rendering.dart';
 
 
-void main() {
-  runApp(const MyApp());
-}
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -34,7 +32,8 @@ class MyApp extends StatelessWidget {
 }
 
 class BottomNavBar extends StatefulWidget {
-  const BottomNavBar({super.key});
+  final int initialIndex; // Tambahkan initialIndex
+  const BottomNavBar({Key? key, this.initialIndex = 0}) : super(key: key);
 
   @override
   State<BottomNavBar> createState() => _BottomNavBarState();
@@ -42,34 +41,54 @@ class BottomNavBar extends StatefulWidget {
 
 class _BottomNavBarState extends State<BottomNavBar> {
   int _currentIndex = 0;
-
-  final List<Widget> _pages = [
-    HomeScreen(),
-    MyCartScreen(),
-    FavouriteScreen(),
-    ProfileScreen(),
+  List<Widget> body = const [
+    Icon(Icons.home_filled),
+    Icon(Icons.delivery_dining_outlined),
+    Icon(Icons.favorite),
+    Icon(Icons.person_2),
   ];
+
+  final screen = [
+    const HomeScreen(),
+    MyCartScreen(),
+    const FavoriteScreen(),
+    const ProfilScreen(),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget
+        .initialIndex; // Atur _currentIndex dengan initialIndex dari widget
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
-        children: _pages,
+        children: screen,
       ),
-      bottomNavigationBar: FloatingNavbar(
-        onTap: (int val) {
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (int newIndex) {
           setState(() {
-            _currentIndex = val;
+            _currentIndex = newIndex;
           });
         },
-        currentIndex: _currentIndex,
         items: [
-          FloatingNavbarItem(icon: Icons.home, title: 'Home'),
-          FloatingNavbarItem(icon: Icons.shopping_basket, title: 'My Cart'),
-          FloatingNavbarItem(icon: Icons.favorite, title: 'Favourite'),
-          FloatingNavbarItem(icon: Icons.person, title: 'Profile'),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.delivery_dining_outlined), label: "My Order"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.favorite), label: "My Favorite"),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
+        backgroundColor:
+            Colors.white, // Warna latar belakang BottomNavigationBar
+        selectedItemColor: Colors.red, // Warna item yang dipilih
+        unselectedItemColor: Colors.grey, // Warna item yang tidak dipilih
+        type: BottomNavigationBarType.fixed, // Jenis BottomNavigationBar
       ),
     );
   }

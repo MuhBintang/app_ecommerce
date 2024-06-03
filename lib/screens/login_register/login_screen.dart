@@ -61,16 +61,16 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         setState(() {
           isLoading = false;
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('${data.message}')));
+          // ScaffoldMessenger.of(context)
+          //     .showSnackBar(SnackBar(content: Text('${data.message}')));
         });
       }
     } catch (e) {
       //munculkan error
       setState(() {
         isLoading = false;
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(e.toString())));
+        // ScaffoldMessenger.of(context)
+        //     .showSnackBar(SnackBar(content: Text(e.toString())));
       });
     }
   }

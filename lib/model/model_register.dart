@@ -14,6 +14,7 @@ class ModelRegister {
     String email;
     String address;
     String password;
+    String status;
     String message;
 
     ModelRegister({
@@ -22,6 +23,7 @@ class ModelRegister {
         required this.email,
         required this.address,
         required this.password,
+        required this.status,
         required this.message,
     });
 
@@ -31,6 +33,7 @@ class ModelRegister {
         email: json["email"],
         address: json["address"],
         password: json["password"],
+        status: json["status"],
         message: json["message"],
     );
 
@@ -40,6 +43,7 @@ class ModelRegister {
         "email": email,
         "address": address,
         "password": password,
+        "status": status,
         "message": message,
     };
 }

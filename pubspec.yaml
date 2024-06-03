@@ -45,6 +45,7 @@ dependencies:
   floating_bottom_navigation_bar: ^1.5.2
   carousel_slider: ^4.2.1
   increment_decrement_form_field: ^1.0.0
+  order_tracker: ^0.0.2
   # onboarding_slider_flutter: ^0.0.5
 
 dev_dependencies:
