@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:app_ecommerce/model/model_checkout.dart';
+import 'package:app_ecommerce/screens/my_cart/payment_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:app_ecommerce/const.dart';
 import 'package:app_ecommerce/model/model_listaddtocart.dart';
@@ -7,8 +11,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final List<CardDatum> products;
-
-  const CheckoutScreen({Key? key, required this.products}) : super(key: key);
+  final int total;
+  const CheckoutScreen({Key? key, required this.products, required this.total}) : super(key: key);
 
   @override
   _CheckoutScreenState createState() => _CheckoutScreenState();
@@ -16,7 +20,10 @@ class CheckoutScreen extends StatefulWidget {
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
   String? total;
-  String? address, username, email;
+  String? address, username, email, id;
+  bool isLoading = false;
+  String? snap;
+ 
 
   @override
   void initState() {
@@ -33,6 +40,79 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       username = pref.getString("username");
     });
   }
+
+  Future<void> placeOrder() async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+
+      var jsonData = jsonEncode({
+        'user_id': id,
+        'items': widget.products.map((item) {
+          return {
+            'id': item.productId,
+            'product_name': item.productName,
+            'product_price': item.productPrice,
+            'product_stock': item.productStock,
+            'quantity': item.quantity, // tambahkan kuantitas produk
+          };
+        }).toList(),
+        'customer_address': address,
+        'total_price': widget.total.toString(),
+      });
+
+      final response = await http.post(
+        Uri.parse('$url/api.php'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonData,
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        if (responseData['snap_token'] != null && responseData['user_id'] != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PaymentDetail(
+                snapToken: responseData['snap_token'],
+                orderId: responseData['order_id'],
+              ),
+            ),
+          );
+        } else {
+          _showErrorDialog('Failed to place order. Incomplete response.');
+        }
+      } else {
+        _showErrorDialog('Failed to place order. Server error.');
+      }
+    } catch (e) {
+      _showErrorDialog('Failed to place order. ${e.toString()}');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   Future<void> calculateTotalPrice() async {
     int totalPrice = widget.products
@@ -62,7 +142,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         centerTitle: true, // Center the title
         title: Text(
           'Payment',
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios, color: Colors.black),
@@ -95,7 +175,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ),
                     ),
                     Text(
-                      address ?? 'No address found',
+                      email ?? 'No address found',
                       style: TextStyle(fontSize: 14),
                     ),
                   ],
@@ -151,7 +231,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ListTile(
             leading: Icon(Icons.payment, size: 40),
             title: Text('Credit/Debit Card'),
-            subtitle: Text(email ?? 'user****@gmail.com'),
+            subtitle: Text(address ?? 'user****@gmail.com'),
             trailing: Icon(Icons.arrow_forward_ios),
             onTap: () {
               // Payment method logic
@@ -185,7 +265,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             child: Center(
               child: ElevatedButton(
                 onPressed: () {
-                  // Checkout logic
+                  placeOrder();
                 },
                 child: Text('Checkout Now'),
                 style: ElevatedButton.styleFrom(

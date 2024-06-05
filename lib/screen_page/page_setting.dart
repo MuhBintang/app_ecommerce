@@ -16,13 +16,34 @@ class PageSetting extends StatefulWidget {
 class _PageSettingState extends State<PageSetting> {
   // Fungsi untuk menghapus sesi dan navigasi ke halaman login
   Future<void> clearSession() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    await pref.clear();
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => LoginScreen(),
+    bool confirmLogout = await showDialog(
+      barrierColor: Colors.white,
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Konfirmasi Logout'),
+        content: Text('Ingin logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('Tidak'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text('Ya'),
+          ),
+        ],
       ),
     );
+
+    if (confirmLogout) {
+      SharedPreferences pref = await SharedPreferences.getInstance();
+      await pref.clear();
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => LoginScreen(),
+        ),
+      );
+    }
   }
 
   @override

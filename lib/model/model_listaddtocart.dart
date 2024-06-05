@@ -42,6 +42,7 @@ class CardDatum {
   String productPrice;
   String productStock;
   String productImage;
+  int quantity;
 
   CardDatum({
     required this.productId,
@@ -49,6 +50,7 @@ class CardDatum {
     required this.productPrice,
     required this.productStock,
     required this.productImage,
+    this.quantity = 1,
   });
 
   factory CardDatum.fromJson(Map<String, dynamic> json) {

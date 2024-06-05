@@ -3,7 +3,7 @@
   "packages": [
     {
       "name": "async",
-      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/async-2.10.0",
+      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/async-2.11.0",
       "packageUri": "lib/",
       "languageVersion": "2.18"
     },
@@ -27,7 +27,7 @@
     },
     {
       "name": "characters",
-      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/characters-1.2.1",
+      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/characters-1.3.0",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -39,9 +39,9 @@
     },
     {
       "name": "collection",
-      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/collection-1.17.0",
+      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/collection-1.18.0",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "2.18"
     },
     {
       "name": "cupertino_icons",
@@ -83,7 +83,7 @@
       "name": "flutter",
       "rootUri": "file:///C:/src/flutter/packages/flutter",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "3.2"
     },
     {
       "name": "flutter_lints",
@@ -101,13 +101,13 @@
       "name": "flutter_test",
       "rootUri": "file:///C:/src/flutter/packages/flutter_test",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "3.2"
     },
     {
       "name": "flutter_web_plugins",
       "rootUri": "file:///C:/src/flutter/packages/flutter_web_plugins",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "3.2"
     },
     {
       "name": "http",
@@ -134,12 +134,6 @@
       "languageVersion": "2.12"
     },
     {
-      "name": "js",
-      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/js-0.6.5",
-      "packageUri": "lib/",
-      "languageVersion": "2.16"
-    },
-    {
       "name": "lints",
       "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/lints-2.0.1",
       "packageUri": "lib/",
@@ -147,21 +141,27 @@
     },
     {
       "name": "matcher",
-      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/matcher-0.12.13",
+      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/matcher-0.12.16",
       "packageUri": "lib/",
       "languageVersion": "2.18"
     },
     {
       "name": "material_color_utilities",
-      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/material_color_utilities-0.2.0",
+      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/material_color_utilities-0.5.0",
       "packageUri": "lib/",
-      "languageVersion": "2.13"
+      "languageVersion": "2.17"
     },
     {
       "name": "meta",
-      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/meta-1.8.0",
+      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/meta-1.10.0",
       "packageUri": "lib/",
       "languageVersion": "2.12"
+    },
+    {
+      "name": "midtrans_snap",
+      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/midtrans_snap-1.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
     },
     {
       "name": "nested",
@@ -177,7 +177,7 @@
     },
     {
       "name": "path",
-      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/path-1.8.2",
+      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/path-1.8.3",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -263,25 +263,25 @@
       "name": "sky_engine",
       "rootUri": "file:///C:/src/flutter/bin/cache/pkg/sky_engine",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "3.2"
     },
     {
       "name": "source_span",
-      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/source_span-1.9.1",
+      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/source_span-1.10.0",
       "packageUri": "lib/",
-      "languageVersion": "2.14"
+      "languageVersion": "2.18"
     },
     {
       "name": "stack_trace",
-      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/stack_trace-1.11.0",
+      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/stack_trace-1.11.1",
       "packageUri": "lib/",
       "languageVersion": "2.18"
     },
     {
       "name": "stream_channel",
-      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/stream_channel-2.1.1",
+      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/stream_channel-2.1.2",
       "packageUri": "lib/",
-      "languageVersion": "2.14"
+      "languageVersion": "2.19"
     },
     {
       "name": "string_scanner",
@@ -297,9 +297,15 @@
     },
     {
       "name": "test_api",
-      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/test_api-0.4.16",
+      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/test_api-0.6.1",
       "packageUri": "lib/",
-      "languageVersion": "2.18"
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "toolkit",
+      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/toolkit-0.3.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.16"
     },
     {
       "name": "typed_data",
@@ -320,6 +326,36 @@
       "languageVersion": "2.16"
     },
     {
+      "name": "web",
+      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/web-0.3.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
+      "name": "webview_flutter",
+      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/webview_flutter-4.5.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "webview_flutter_android",
+      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/webview_flutter_android-3.15.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "webview_flutter_platform_interface",
+      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/webview_flutter_platform_interface-2.9.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "webview_flutter_wkwebview",
+      "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/webview_flutter_wkwebview-3.10.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
       "name": "win32",
       "rootUri": "file:///C:/Users/Asus/AppData/Local/Pub/Cache/hosted/pub.dev/win32-4.1.4",
       "packageUri": "lib/",
@@ -335,10 +371,10 @@
       "name": "app_ecommerce",
       "rootUri": "../",
       "packageUri": "lib/",
-      "languageVersion": "2.19"
+      "languageVersion": "3.2"
     }
   ],
-  "generated": "2024-06-03T18:35:57.835378Z",
+  "generated": "2024-06-04T00:59:29.087821Z",
   "generator": "pub",
-  "generatorVersion": "2.19.0"
+  "generatorVersion": "3.2.2"
 }

@@ -33,9 +33,9 @@ class _PageEditProfileState extends State<PageEditProfile> {
       id = pref.getString("id");
       username = pref.getString("username");
       txtUsername.text = username ?? '';
-      address = pref.getString("address");
+      address = pref.getString("email");
       txtAddress.text = address ?? '';
-      email = pref.getString("email");
+      email = pref.getString("address");
       txtEmail.text = email ?? '';
     });
   }

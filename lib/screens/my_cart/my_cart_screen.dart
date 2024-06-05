@@ -37,7 +37,7 @@ class _MyCartScreenState extends State<MyCartScreen> {
           await http.get(Uri.parse('$url/listaddtocart.php?id_user=$id'));
       if (res.statusCode == 200) {
         setState(() {
-          products = modelListAddtoCartFromJson(res.body).data ?? []; // Perbarui list produk
+          products = modelListAddtoCartFromJson(res.body).data ?? [];
         });
         return products;
       } else {
@@ -87,6 +87,16 @@ class _MyCartScreenState extends State<MyCartScreen> {
     return currencyFormatter.format(amount);
   }
 
+  int calculateTotal() {
+    return products.fold(0, (sum, item) => sum + int.parse(item.productPrice) * item.quantity);
+  }
+
+  void updateQuantity(CardDatum product, int newQuantity) {
+    setState(() {
+      product.quantity = newQuantity;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,57 +115,84 @@ class _MyCartScreenState extends State<MyCartScreen> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: products.length,
-              itemBuilder: (context, index) {
-                CardDatum product = products[index];
-                return Card(
-                  margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                  child: ListTile(
-                    leading: GestureDetector(
-                      onTap: () {
-                        deleteProduct(product.productId);
-                      },
-                      child: Icon(Icons.delete, color: Colors.red,),
+            child: products.isEmpty // Tambahkan penanganan jika produk kosong
+                ? Center(
+                    child: Text(
+                      'Your cart is empty', // Tampilkan pesan ketika produk kosong
+                      style: TextStyle(fontSize: 18),
                     ),
-                    title: Row(
-                      children: [
-                        SizedBox(
-                          width: 57,
-                          height: 57,
-                          child: Image.network(
-                            '$url/gambar/${product.productImage}',
-                            fit: BoxFit.cover,
+                  )
+                : ListView.builder(
+                    itemCount: products.length,
+                    itemBuilder: (context, index) {
+                      CardDatum product = products[index];
+                      return Card(
+                        color: Colors.white,
+                        margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                        child: ListTile(
+                          leading: GestureDetector(
+                            onTap: () {
+                              deleteProduct(product.productId);
+                            },
+                            child: Icon(Icons.delete, color: Colors.red,),
                           ),
-                        ),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
+                          title: Row(
                             children: [
+                              SizedBox(
+                                width: 57,
+                                height: 57,
+                                child: Image.network(
+                                  '$url/gambar/${product.productImage}',
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      product.productName,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        IconButton(
+                                          icon: Icon(Icons.remove),
+                                          onPressed: product.quantity > 1
+                                              ? () {
+                                                  updateQuantity(product, product.quantity - 1);
+                                                }
+                                              : null,
+                                        ),
+                                        Text(product.quantity.toString()),
+                                        IconButton(
+                                          icon: Icon(Icons.add),
+                                          onPressed: () {
+                                            updateQuantity(product, product.quantity + 1);
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
                               Text(
-                                product.productName,
+                                formatCurrency(int.parse(product.productPrice) * product.quantity),
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 16,
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        Text(
-                          formatCurrency(int.parse(product.productPrice)),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -163,7 +200,9 @@ class _MyCartScreenState extends State<MyCartScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Total: ${formatCurrency(products.map((product) => int.parse(product.productPrice)).reduce((value, element) => value + element))}',
+                  products.isEmpty // Ubah pesan total jika produk kosong
+                      ? 'Total: ${formatCurrency(0)}'
+                      : 'Total: ${formatCurrency(calculateTotal())}',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -172,12 +211,12 @@ class _MyCartScreenState extends State<MyCartScreen> {
                 SizedBox(width: 10),
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () {
+                    onPressed: products.isEmpty ? null : () { // Nonaktifkan tombol jika produk kosong
                       // Navigasi ke CheckoutScreen saat tombol checkout ditekan
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => CheckoutScreen(products: products),
+                          builder: (context) => CheckoutScreen(products: products, total: 1,),
                         ),
                       );
                     },

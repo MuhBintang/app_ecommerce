@@ -129,6 +129,7 @@ class _CategoryCasualState extends State<CategoryCasual> {
                     },
                     child: 
                       Card(
+                        color: Colors.white,
                         elevation: 2.0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.0),

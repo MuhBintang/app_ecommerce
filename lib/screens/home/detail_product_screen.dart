@@ -20,11 +20,14 @@ class DetailProductScreen extends StatefulWidget {
 class _DetailProductScreenState extends State<DetailProductScreen> {
   String selectedColor = 'red';
   late String userId;
+  int quantity = 1; // Initial quantity
+  late int totalPrice; // Variable to store total price
 
   @override
   void initState() {
     super.initState();
     getSession();
+    totalPrice = int.parse(widget.product.productPrice); // Initialize total price
   }
 
   Future<void> getSession() async {
@@ -35,36 +38,29 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
   }
 
   void addToCart() async {
-    // Ambil id_product dari widget.product.id
     String idProduct = widget.product.id.toString();
-
-    // Ambil id_user dari sesi yang sudah disimpan sebelumnya
     SharedPreferences pref = await SharedPreferences.getInstance();
     String? userId = pref.getString("id");
 
-    // Cek jika id_user tidak null
     if (userId != null) {
-      // Siapkan data yang akan dikirim
       Map<String, String> data = {
         'id_product': idProduct,
         'id_user': userId,
+        'quantity': quantity.toString(),
+        'total_price': totalPrice.toString(), // Include total price
       };
 
-      // Kirim permintaan POST ke addtocart.php
       try {
         http.Response response = await http.post(
           Uri.parse('$url/addtocart.php'),
           body: data,
         );
 
-        // Periksa status respons
         if (response.statusCode == 200) {
-          // Parse JSON respons
           var jsonResponse = jsonDecode(response.body);
           bool isSuccess = jsonResponse['isSuccess'];
           String message = jsonResponse['message'];
 
-          // Tampilkan pesan respons dalam snackbar
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(message),
@@ -72,7 +68,6 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
             ),
           );
 
-          // Arahkan pengguna ke BottomNavBar()
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -80,7 +75,6 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
             ),
           );
         } else {
-          // Tampilkan pesan jika terjadi kesalahan dalam permintaan
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error: ${response.reasonPhrase}'),
@@ -89,7 +83,6 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
           );
         }
       } catch (e) {
-        // Tangani kesalahan jika terjadi
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error: $e'),
@@ -98,7 +91,6 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
         );
       }
     } else {
-      // Tampilkan pesan jika id_user tidak ditemukan dalam sesi
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('User ID not found in session.'),
@@ -107,6 +99,7 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
       );
     }
   }
+
 
   String formatCurrency(int amount) {
     final format = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ');
@@ -161,6 +154,7 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Card(
+                      color: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16.0),
                       ),
@@ -258,20 +252,28 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                               ),
                             ),
                             SizedBox(height: 8.0),
-                            IncrementDecrementFormField<int>(
-                              initialValue: 0,
-                              displayBuilder: (value, field) {
-                                return Text(
-                                  value == null ? "0" : value.toString(),
-                                );
-                              },
-                              onDecrement: (currentValue) {
-                                return currentValue! - 1;
-                              },
-                              onIncrement:(currentValue) {
-                                return currentValue! + 1;
-                              },
-                            ),
+                            // IncrementDecrementFormField<int>(
+                            //   initialValue: quantity,
+                            //   displayBuilder: (value, field) {
+                            //     return Text(
+                            //       value == null ? "0" : value.toString(),
+                            //     );
+                            //   },
+                            //   onDecrement: (currentValue) {
+                            //     setState(() {
+                            //       quantity = currentValue! - 1;
+                            //       totalPrice = quantity * int.parse(widget.product.productPrice);
+                            //     });
+                            //     return quantity;
+                            //   },
+                            //   onIncrement: (currentValue) {
+                            //     setState(() {
+                            //       quantity = currentValue! + 1;
+                            //       totalPrice = quantity * int.parse(widget.product.productPrice);
+                            //     });
+                            //     return quantity;
+                            //   },
+                            // ),
                             SizedBox(height: 16.0),
                             Text(
                               widget.product.productDescription,
@@ -302,7 +304,7 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      formatCurrency(int.parse(widget.product.productPrice)),
+                      formatCurrency(totalPrice),
                       style: TextStyle(
                         fontSize: 24.0,
                         fontWeight: FontWeight.bold,

@@ -347,6 +347,7 @@ class _HomeScreenState extends State<HomeScreen>{
                               );
                             },
                             child: Card(
+                              color: Colors.white,
                               elevation: 2.0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10.0),
@@ -395,7 +396,7 @@ class _HomeScreenState extends State<HomeScreen>{
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                        SizedBox(height: 8), // Tambah jarak vertikal di sini
+                                        SizedBox(height: 3), // Tambah jarak vertikal di sini
                                         Text(
                                           '\Rp. ${product.productPrice}',
                                           style: TextStyle(

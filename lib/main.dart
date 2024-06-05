@@ -23,7 +23,17 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'E Commerce App',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.black, 
+            foregroundColor: Colors.white
+          ),
+        ),
+        appBarTheme: AppBarTheme(
+          titleTextStyle: TextStyle(color: Colors.white, fontSize: 22), 
+          backgroundColor: Color(0xffEB3C3C), 
+          iconTheme: IconThemeData(color: Colors.white)
+        ),
       ),
       home: SplashScreen(),
       debugShowCheckedModeBanner: false,
