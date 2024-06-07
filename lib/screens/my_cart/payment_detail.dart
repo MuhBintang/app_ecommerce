@@ -2,7 +2,6 @@ import 'package:app_ecommerce/screens/my_cart/success_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:midtrans_snap/midtrans_snap.dart';
 import 'package:midtrans_snap/models.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PaymentDetail extends StatefulWidget {

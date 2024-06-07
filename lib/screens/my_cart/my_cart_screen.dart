@@ -1,7 +1,8 @@
+import 'package:app_ecommerce/model/model_listcart.dart';
 import 'package:flutter/material.dart';
 import 'package:app_ecommerce/const.dart';
-import 'package:app_ecommerce/model/model_listaddtocart.dart';
 import 'package:http/http.dart' as http;
+import 'package:increment_decrement_form_field/increment_decrement_form_field.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'checkout_screen.dart'; // Import CheckoutScreen
@@ -13,7 +14,10 @@ class MyCartScreen extends StatefulWidget {
 
 class _MyCartScreenState extends State<MyCartScreen> {
   String? username, id;
-  List<CardDatum> products = []; // List untuk menyimpan produk di keranjang belanja
+  bool isLoading = false;
+
+  late List<Datum> _allCart = [];
+  late Map<String, int> _quantities = {};
 
   @override
   void initState() {
@@ -26,33 +30,32 @@ class _MyCartScreenState extends State<MyCartScreen> {
     setState(() {
       username = pref.getString("username");
       id = pref.getString("id") ?? '';
-      print('id $id');
     });
-    getProduct(); // Panggil fungsi getProduct() setelah mendapatkan sesi
+    getProduct();
   }
 
-  Future<List<CardDatum>?> getProduct() async {
+  Future<void> getProduct() async {
     try {
-      http.Response res =
-          await http.get(Uri.parse('$url/listaddtocart.php?id_user=$id'));
-      if (res.statusCode == 200) {
-        setState(() {
-          products = modelListAddtoCartFromJson(res.body).data ?? [];
-        });
-        return products;
-      } else {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text("Failed to load data")));
-        return null;
-      }
+      setState(() {
+        isLoading = true;
+      });
+      http.Response res = await http.get(Uri.parse('$url/listaddtocart.php?id_user=$id'));
+      List<Datum> data = modelListCartFromJson(res.body).data ?? [];
+      setState(() {
+        _allCart = data;
+        _quantities = {
+          for (var item in _allCart) item.productId: item.productStock,
+        };
+        isLoading = false;
+      });
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.toString())));
-      return null;
+      setState(() {
+        isLoading = false;
+      });
+      // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
 
-  // Fungsi untuk menghapus produk dari keranjang belanja
   Future<void> deleteProduct(String productId) async {
     try {
       http.Response res = await http.post(
@@ -61,7 +64,8 @@ class _MyCartScreenState extends State<MyCartScreen> {
       );
       if (res.statusCode == 200) {
         setState(() {
-          getProduct();
+          _allCart.removeWhere((item) => item.productId == productId);
+          _quantities.remove(productId);
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Product deleted successfully")),
@@ -87,18 +91,19 @@ class _MyCartScreenState extends State<MyCartScreen> {
     return currencyFormatter.format(amount);
   }
 
-  int calculateTotal() {
-    return products.fold(0, (sum, item) => sum + int.parse(item.productPrice) * item.quantity);
-  }
-
-  void updateQuantity(CardDatum product, int newQuantity) {
-    setState(() {
-      product.quantity = newQuantity;
-    });
+  int calculateTotalPrice() {
+    int totalPrice = 0;
+    for (int i = 0; i < _allCart.length; i++) {
+      int price = int.tryParse(_allCart[i].productPrice ?? '') ?? 0;
+      int quantity = _quantities[_allCart[i].productId] ?? 1;
+      totalPrice += price * quantity;
+    }
+    return totalPrice;
   }
 
   @override
   Widget build(BuildContext context) {
+    int totalPrice = calculateTotalPrice();
     return Scaffold(
       body: Column(
         children: [
@@ -115,17 +120,17 @@ class _MyCartScreenState extends State<MyCartScreen> {
             ),
           ),
           Expanded(
-            child: products.isEmpty // Tambahkan penanganan jika produk kosong
+            child: _allCart.isEmpty
                 ? Center(
                     child: Text(
-                      'Your cart is empty', // Tampilkan pesan ketika produk kosong
+                      'Your cart is empty',
                       style: TextStyle(fontSize: 18),
                     ),
                   )
                 : ListView.builder(
-                    itemCount: products.length,
+                    itemCount: _allCart.length,
                     itemBuilder: (context, index) {
-                      CardDatum product = products[index];
+                      Datum product = _allCart[index];
                       return Card(
                         color: Colors.white,
                         margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -134,7 +139,7 @@ class _MyCartScreenState extends State<MyCartScreen> {
                             onTap: () {
                               deleteProduct(product.productId);
                             },
-                            child: Icon(Icons.delete, color: Colors.red,),
+                            child: Icon(Icons.delete, color: Colors.red),
                           ),
                           title: Row(
                             children: [
@@ -152,28 +157,38 @@ class _MyCartScreenState extends State<MyCartScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text(
-                                      product.productName,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
+                                    // Text(
+                                    //   product.productName,
+                                    //   style: TextStyle(
+                                    //     fontWeight: FontWeight.bold,
+                                    //     fontSize: 16,
+                                    //   ),
+                                    // ),
+                                    SizedBox(height: 25,),
                                     Row(
                                       children: [
-                                        IconButton(
-                                          icon: Icon(Icons.remove),
-                                          onPressed: product.quantity > 1
-                                              ? () {
-                                                  updateQuantity(product, product.quantity - 1);
-                                                }
-                                              : null,
-                                        ),
-                                        Text(product.quantity.toString()),
-                                        IconButton(
-                                          icon: Icon(Icons.add),
-                                          onPressed: () {
-                                            updateQuantity(product, product.quantity + 1);
+                                        IncrementDecrementFormField<int>(
+                                          initialValue: _quantities[product.productId] ?? 1,
+                                          displayBuilder: (value, field) {
+                                            return Text(
+                                              value == null ? "0" : value.toString(),
+                                            );
+                                          },
+                                          onDecrement: (currentValue) {
+                                            int newValue = (currentValue! > 1) ? currentValue - 1 : 1;
+                                            setState(() {
+                                              _quantities[product.productId] = newValue;
+                                              _allCart[index].productStock = newValue;
+                                            });
+                                            return newValue;
+                                          },
+                                          onIncrement: (currentValue) {
+                                            int newValue = currentValue! + 1;
+                                            setState(() {
+                                              _quantities[product.productId] = newValue;
+                                              _allCart[index].productStock = newValue;
+                                            });
+                                            return newValue;
                                           },
                                         ),
                                       ],
@@ -182,7 +197,7 @@ class _MyCartScreenState extends State<MyCartScreen> {
                                 ),
                               ),
                               Text(
-                                formatCurrency(int.parse(product.productPrice) * product.quantity),
+                                formatCurrency(int.parse(product.productPrice) * product.productStock),
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -200,9 +215,9 @@ class _MyCartScreenState extends State<MyCartScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  products.isEmpty // Ubah pesan total jika produk kosong
+                  _allCart.isEmpty
                       ? 'Total: ${formatCurrency(0)}'
-                      : 'Total: ${formatCurrency(calculateTotal())}',
+                      : 'Total: ${formatCurrency(totalPrice)}',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -211,15 +226,19 @@ class _MyCartScreenState extends State<MyCartScreen> {
                 SizedBox(width: 10),
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: products.isEmpty ? null : () { // Nonaktifkan tombol jika produk kosong
-                      // Navigasi ke CheckoutScreen saat tombol checkout ditekan
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CheckoutScreen(products: products, total: 1,),
-                        ),
-                      );
-                    },
+                    onPressed: _allCart.isEmpty
+                        ? null
+                        : () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CheckoutScreen(
+                                  products: _allCart,
+                                  total: totalPrice,
+                                ),
+                              ),
+                            );
+                          },
                     icon: Icon(Icons.shopping_cart),
                     label: Text(
                       'Checkout',

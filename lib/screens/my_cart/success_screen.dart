@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:app_ecommerce/const.dart';
+import 'package:app_ecommerce/main.dart';
 import 'package:app_ecommerce/model/model_add.dart';
 import 'package:app_ecommerce/screens/home/home_screen.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +66,7 @@ class _SuccessPageState extends State<SuccessPage> {
           isLoading = false;
           Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (context) => const HomeScreen()),
+              MaterialPageRoute(builder: (context) => const BottomNavBar()),
               (route) => false);
         });
       } else if (data.isSuccess == false) {
@@ -101,7 +102,7 @@ class _SuccessPageState extends State<SuccessPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffFCEFE7),
+      backgroundColor: Colors.white,
       body: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:app_ecommerce/model/model_product.dart';
 import 'package:app_ecommerce/const.dart';
-import 'package:increment_decrement_form_field/increment_decrement_form_field.dart';
 import 'package:intl/intl.dart';
 
 class DetailProductScreen extends StatefulWidget {
@@ -289,6 +288,7 @@ class _DetailProductScreenState extends State<DetailProductScreen> {
                   ),
                 ],
               ),
+              
             ),
           ),
           Padding(

@@ -8,8 +8,7 @@ class PaymentDetailScreen extends StatefulWidget {
   final String snapToken;
   final int orderId;
   const PaymentDetailScreen(
-      {Key? key, required this.snapToken, required this.orderId})
-      : super(key: key);
+      {Key? key, required this.snapToken, required this.orderId}): super(key: key);
 
   @override
   State<PaymentDetailScreen> createState() => _PaymentDetailScreenState();

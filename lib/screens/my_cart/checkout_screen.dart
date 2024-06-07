@@ -1,17 +1,18 @@
 import 'dart:convert';
-
 import 'package:app_ecommerce/model/model_checkout.dart';
+import 'package:app_ecommerce/model/model_listcart.dart';
 import 'package:app_ecommerce/screens/my_cart/payment_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:app_ecommerce/const.dart';
-import 'package:app_ecommerce/model/model_listaddtocart.dart';
+// import 'package:app_ecommerce/model/model_listaddtocart.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CheckoutScreen extends StatefulWidget {
-  final List<CardDatum> products;
+  final List<Datum> products;
   final int total;
+
   const CheckoutScreen({Key? key, required this.products, required this.total}) : super(key: key);
 
   @override
@@ -19,16 +20,13 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
-  String? total;
   String? address, username, email, id;
   bool isLoading = false;
   String? snap;
- 
 
   @override
   void initState() {
     super.initState();
-    calculateTotalPrice();
     getSession();
   }
 
@@ -38,62 +36,65 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       email = pref.getString("email");
       address = pref.getString("address");
       username = pref.getString("username");
+      id = pref.getString("id");
     });
   }
 
   Future<void> placeOrder() async {
-    try {
-      setState(() {
-        isLoading = true;
-      });
+  try {
+    setState(() {
+      isLoading = true;
+    });
 
-      var jsonData = jsonEncode({
-        'user_id': id,
-        'items': widget.products.map((item) {
-          return {
-            'id': item.productId,
-            'product_name': item.productName,
-            'product_price': item.productPrice,
-            'product_stock': item.productStock,
-            'quantity': item.quantity, // tambahkan kuantitas produk
-          };
-        }).toList(),
-        'customer_address': address,
-        'total_price': widget.total.toString(),
-      });
+    var jsonData = jsonEncode({
+      'user_id': id,
+      'items': widget.products.map((item) {
+        return {
+          'id': item.productId,
+          'product_name': item.productName,
+          'product_price': item.productPrice,
+          'product_stock': item.productStock,
+        };
+      }).toList(),
+      'customer_address': address,
+      // 'total_price': widget.total.toString(),
+    });
 
-      final response = await http.post(
-        Uri.parse('$url/api.php'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonData,
-      );
+    final response = await http.post(
+      Uri.parse('$url/api.php'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonData,
+    );
 
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        if (responseData['snap_token'] != null && responseData['user_id'] != null) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PaymentDetail(
-                snapToken: responseData['snap_token'],
-                orderId: responseData['order_id'],
-              ),
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      if (responseData['snap_token'] != null && responseData['order_id'] != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PaymentDetail(
+              snapToken: responseData['snap_token'],
+              orderId: responseData['order_id'],
             ),
-          );
-        } else {
-          _showErrorDialog('Failed to place order. Incomplete response.');
-        }
+          ),
+        );
       } else {
-        _showErrorDialog('Failed to place order. Server error.');
+        _showErrorDialog('Failed to place order. Incomplete response.');
       }
-    } catch (e) {
-      _showErrorDialog('Failed to place order. ${e.toString()}');
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
+    } else {
+      _showErrorDialog('Failed to place order. Server error.');
     }
+  } catch (e) {
+    _showErrorDialog('Failed to place order. ${e.toString()}');
+  } finally {
+    setState(() {
+      isLoading = false;
+    });
   }
+}
+
 
   void _showErrorDialog(String message) {
     showDialog(
@@ -113,16 +114,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-
-  Future<void> calculateTotalPrice() async {
-    int totalPrice = widget.products
-        .map((product) => int.parse(product.productPrice))
-        .reduce((value, element) => value + element);
-    setState(() {
-      total = formatCurrency(totalPrice);
-    });
-  }
-
   String formatCurrency(int amount) {
     final NumberFormat currencyFormatter = NumberFormat.currency(
       locale: 'id_ID',
@@ -137,9 +128,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0, // Remove drop shadow
+        elevation: 0,
         iconTheme: IconThemeData(color: Colors.black),
-        centerTitle: true, // Center the title
+        centerTitle: true,
         title: Text(
           'Payment',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
@@ -198,7 +189,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             child: ListView.builder(
               itemCount: widget.products.length,
               itemBuilder: (context, index) {
-                CardDatum product = widget.products[index];
+                Datum product = widget.products[index];
                 return ListTile(
                   leading: SizedBox(
                     width: 57,
@@ -209,10 +200,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     ),
                   ),
                   title: Text(product.productName),
-                  subtitle: Text(
-                    formatCurrency(int.parse(product.productPrice)),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        formatCurrency(int.parse(product.productPrice)),
+                      ),
+                      Text('Quantity: ${product.productStock}'),
+                    ],
                   ),
-                  trailing: Text('Stock left: ${product.productStock}'),
                 );
               },
             ),
@@ -251,7 +247,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           Padding(
             padding: const EdgeInsets.only(left: 16.0),
             child: Text(
-              total ?? '',
+              formatCurrency(widget.total),
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -276,7 +272,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30), // Border radius
+                    borderRadius: BorderRadius.circular(30),
                   ),
                 ),
               ),

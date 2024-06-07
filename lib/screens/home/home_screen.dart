@@ -1,13 +1,11 @@
 import 'package:app_ecommerce/main.dart';
 import 'package:app_ecommerce/model/model_insertfav.dart';
-import 'package:app_ecommerce/model/model_listaddtocart.dart';
 import 'package:app_ecommerce/model/model_product.dart';
 import 'package:app_ecommerce/screens/category/category_casual.dart';
 import 'package:app_ecommerce/screens/category/category_sneaker.dart';
 import 'package:app_ecommerce/screens/category/category_sport.dart';
 import 'package:app_ecommerce/screens/category/category_wanita.dart';
 import 'package:app_ecommerce/screens/home/list_all_scren.dart';
-import 'package:app_ecommerce/screens/my_cart/checkout_screen.dart';
 import 'package:app_ecommerce/screens/my_cart/order_tracking_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -88,7 +86,8 @@ class _HomeScreenState extends State<HomeScreen>{
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text("item sudah ada difavorite : ${data.message}"),
           backgroundColor: Colors.red,
-        ));
+          )
+        );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -138,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen>{
                       IconButton(
                         icon: Icon(Icons.notifications), 
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => OrderTrackingScreen()));
+                          // Navigator.push(context, MaterialPageRoute(builder: (context) => OrderTrackingScreen()));
                         },
                       ),
                       IconButton(
