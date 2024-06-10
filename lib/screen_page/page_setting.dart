@@ -2,6 +2,7 @@ import 'package:app_ecommerce/main.dart';
 import 'package:app_ecommerce/screen_page/page_legal.dart';
 import 'package:app_ecommerce/screens/login_register/login_screen.dart';
 import 'package:app_ecommerce/screens/profile/editprofile_screen.dart';
+import 'package:app_ecommerce/utils/cek_session.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -181,39 +182,95 @@ class _PageSettingState extends State<PageSetting> {
             ),
             InkWell(
               onTap: () {
-                clearSession(); // Panggil fungsi clearSession saat tombol Logout ditekan
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      content: Text(
+                        "Are you sure you want to logout?",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                            fontSize: 22),
+                      ),
+                      actions: <Widget>[
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); // Close the dialog
+                              },
+                              child: Text(
+                                "Cancel",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                session.clearSession(); // Clear session data
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => LoginScreen()),
+                                  (Route<dynamic> route) => false,
+                                ); // Navigate to login screen and remove all previous routes
+                              },
+                              child: Text(
+                                "Log Out",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    );
+                  },
+                );
               },
               child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(
-                      15), // Adjust the value for more or less rounding
-                ),
-                padding: EdgeInsets.all(15),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.login_outlined,
-                      color: Colors.red,
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      'Logout',
-                      style: TextStyle(
-                        fontSize: 18,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(
+                        15), // Adjust the value for more or less rounding
+                  ),
+                  padding: EdgeInsets.all(15),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.login_outlined,
                         color: Colors.red,
                       ),
-                    ),
-                    Spacer(), // Untuk memberikan ruang di antara teks dan ikon
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      color: Colors.grey,
-                    ),
-                  ],
-                ),
-              ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Text(
+                        'Logout',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.red,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 240,
+                      ),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        color: Colors.grey,
+                      ),
+                    ],
+                  )),
             ),
           ],
         ),

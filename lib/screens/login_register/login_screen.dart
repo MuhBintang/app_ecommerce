@@ -1,5 +1,6 @@
 import 'package:app_ecommerce/const.dart';
 import 'package:app_ecommerce/main.dart';
+import 'package:app_ecommerce/model/model_forgetpass.dart';
 import 'package:app_ecommerce/model/model_login.dart';
 import 'package:app_ecommerce/screens/home/home_screen.dart';
 import 'package:app_ecommerce/utils/cek_session.dart';
@@ -14,8 +15,10 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  String? id, username, email, address, password;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _forgotPassController = TextEditingController();
 
   bool _isPasswordVisible = false;
 
@@ -75,10 +78,50 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<ModelForgetPass?> forgetpass() async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+
+      http.Response res =
+          await http.post(Uri.parse('$url/forgetpass.php'), body: {
+        "email": _forgotPassController.text, // Use the captured input for email
+        "new_password":
+            _passwordController.text, // Use the captured input for new password
+      });
+      ModelForgetPass data = modelForgetPassFromJson(res.body);
+      if (data.value == 1) {
+        setState(() {
+          isLoading = false;
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Password successfully changed')));
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginScreen()),
+              (route) => false);
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('${data.message}')));
+        });
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.toString())));
+      });
+    }
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _forgotPassController.dispose();
     super.dispose();
   }
 
@@ -109,12 +152,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   SizedBox(height: 20),
                   Text(
-                    'Enter your email or phone number',
+                    'Enter your email and new password',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 16),
                   ),
                   SizedBox(height: 50),
                   TextField(
+                    controller: _forgotPassController, // Capture email here
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.mail),
                       labelText: 'Email or Phone Number',
@@ -123,24 +167,37 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
+                  SizedBox(height: 20),
+                  TextField(
+                    controller:
+                        _passwordController, // Capture new password here
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.lock),
+                      labelText: 'New Password',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    obscureText: true,
+                  ),
                   SizedBox(height: 50),
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.pop(context); // Menutup pop-up pertama
-                      _showChangePasswordModal(context); // Menampilkan pop-up kedua
+                      forgetpass(); // Call forgetpass method
                     },
                     style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 130),
+                      padding: EdgeInsets.symmetric(
+                          vertical: 20, horizontal: 80), // Adjust padding
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(50),
                       ),
                       primary: Color(0xFFEB3C3C),
                     ),
                     child: Text(
-                      'Send Code',
-                      style: TextStyle(fontSize: 18),
+                      'Change Password',
+                      style: TextStyle(fontSize: 15, color: Colors.white),
                     ),
-                  ),
+                  )
                 ],
               ),
             ),

@@ -145,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen>{
                         icon: Icon(Icons.history), // Icon untuk riwayat
                         onPressed: () {
                           // Navigator.push(context, MaterialPageRoute(builder: (context) => CheckoutScreen(products: products)));
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => HistoryPaymentScreen()));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => PageHistory()));
                         },
                       ),
                     ],

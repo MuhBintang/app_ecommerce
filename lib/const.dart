@@ -1,3 +1,3 @@
 import 'package:flutter/material.dart';
 
-const url = 'http://192.168.100.8/db_ecommerce';
+const url = 'http://192.168.56.1/db_ecommerce';
