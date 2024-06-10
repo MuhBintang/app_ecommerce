@@ -11,7 +11,7 @@ String modelProductToJson(ModelProduct data) => json.encode(data.toJson());
 class ModelProduct {
     bool isSuccess;
     String message;
-    List<Datum> data;
+    List<AddressDatum> data;
 
     ModelProduct({
         required this.isSuccess,
@@ -22,7 +22,7 @@ class ModelProduct {
     factory ModelProduct.fromJson(Map<String, dynamic> json) => ModelProduct(
         isSuccess: json["isSuccess"],
         message: json["message"],
-        data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
+        data: List<AddressDatum>.from(json["data"].map((x) => AddressDatum.fromJson(x))),
     );
 
     Map<String, dynamic> toJson() => {
@@ -32,7 +32,7 @@ class ModelProduct {
     };
 }
 
-class Datum {
+class AddressDatum {
     String id;
     String productName;
     String productPrice;
@@ -42,7 +42,7 @@ class Datum {
     String productCategory;
     String productAddress;
 
-    Datum({
+    AddressDatum({
         required this.id,
         required this.productName,
         required this.productPrice,
@@ -53,7 +53,7 @@ class Datum {
         required this.productAddress,
     });
 
-    factory Datum.fromJson(Map<String, dynamic> json) => Datum(
+    factory AddressDatum.fromJson(Map<String, dynamic> json) => AddressDatum(
         id: json["id"],
         productName: json["product_name"],
         productPrice: json["product_price"],

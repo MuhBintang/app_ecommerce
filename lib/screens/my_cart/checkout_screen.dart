@@ -13,7 +13,8 @@ class CheckoutScreen extends StatefulWidget {
   final List<Datum> products;
   final int total;
 
-  const CheckoutScreen({Key? key, required this.products, required this.total}) : super(key: key);
+  const CheckoutScreen({Key? key, required this.products, required this.total})
+      : super(key: key);
 
   @override
   _CheckoutScreenState createState() => _CheckoutScreenState();
@@ -41,60 +42,60 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Future<void> placeOrder() async {
-  try {
-    setState(() {
-      isLoading = true;
-    });
+    try {
+      setState(() {
+        isLoading = true;
+      });
 
-    var jsonData = jsonEncode({
-      'user_id': id,
-      'items': widget.products.map((item) {
-        return {
-          'id': item.productId,
-          'product_name': item.productName,
-          'product_price': item.productPrice,
-          'product_stock': item.productStock,
-        };
-      }).toList(),
-      'customer_address': address,
-      // 'total_price': widget.total.toString(),
-    });
+      var jsonData = jsonEncode({
+        'user_id': id,
+        'items': widget.products.map((item) {
+          return {
+            'id': item.productId,
+            'product_name': item.productName,
+            'product_price': item.productPrice,
+            'product_stock': item.productStock,
+          };
+        }).toList(),
+        'customer_address': address,
+        // 'total_price': widget.total.toString(),
+      });
 
-    final response = await http.post(
-      Uri.parse('$url/api.php'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonData,
-    );
+      final response = await http.post(
+        Uri.parse('$url/api.php'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonData,
+      );
 
-    print(response.body);
+      print(response.body);
 
-    if (response.statusCode == 200) {
-      final responseData = json.decode(response.body);
-      if (responseData['snap_token'] != null && responseData['order_id'] != null) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PaymentDetail(
-              snapToken: responseData['snap_token'],
-              orderId: responseData['order_id'],
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        if (responseData['snap_token'] != null &&
+            responseData['order_id'] != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PaymentDetail(
+                snapToken: responseData['snap_token'],
+                orderId: responseData['order_id'],
+              ),
             ),
-          ),
-        );
+          );
+        } else {
+          _showErrorDialog('Failed to place order. Incomplete response.');
+        }
       } else {
-        _showErrorDialog('Failed to place order. Incomplete response.');
+        _showErrorDialog('Failed to place order. Server error.');
       }
-    } else {
-      _showErrorDialog('Failed to place order. Server error.');
+    } catch (e) {
+      _showErrorDialog('Failed to place order. ${e.toString()}');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
-  } catch (e) {
-    _showErrorDialog('Failed to place order. ${e.toString()}');
-  } finally {
-    setState(() {
-      isLoading = false;
-    });
   }
-}
-
 
   void _showErrorDialog(String message) {
     showDialog(
@@ -227,7 +228,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ListTile(
             leading: Icon(Icons.payment, size: 40),
             title: Text('Credit/Debit Card'),
-            subtitle: Text(address ?? 'user****@gmail.com'),
+            subtitle: Text(address ?? 'user**@gmail.com'),
             trailing: Icon(Icons.arrow_forward_ios),
             onTap: () {
               // Payment method logic

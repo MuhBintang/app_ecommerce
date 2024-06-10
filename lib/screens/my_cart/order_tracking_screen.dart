@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class OrderTrackingScreen extends StatefulWidget {
-  final String alamat;
 
-  const OrderTrackingScreen(this.alamat, {Key? key}) : super(key: key);
+  const OrderTrackingScreen({Key? key}) : super(key: key);
 
   @override
   _OrderTrackingScreenState createState() => _OrderTrackingScreenState();
@@ -13,33 +10,6 @@ class OrderTrackingScreen extends StatefulWidget {
 
 class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
   int _currentStep = 0;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    // Load your tracking data here if needed
-  }
-
-  List<Step> _buildSteps() {
-    return [
-      Step(
-        title: Text("Alamat Toko"),
-        subtitle: Text("cengkareng , jakarta"),
-        content: Container(),
-        isActive: _currentStep >= 0,
-        state: _currentStep > 0 ? StepState.complete : StepState.indexed,
-      ),
-      Step(
-        title: Text("Alamat Rumah"),
-        subtitle: Text(widget.alamat),
-        content: Container(),
-        isActive: _currentStep >= 1,
-        state: _currentStep > 1 ? StepState.complete : StepState.indexed,
-      ),
-      // Add more steps here if you have more tracking data
-    ];
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,5 +79,25 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
         ],
       ),
     );
+  }
+
+  List<Step> _buildSteps() {
+    return [
+      Step(
+        title: Text("Alamat Toko"),
+        subtitle: Text("Bandung , jakarta"),
+        content: Container(),
+        isActive: _currentStep >= 0,
+        state: _currentStep > 0 ? StepState.complete : StepState.indexed,
+      ),
+      Step(
+        title: Text("Alamat Rumah"),
+        subtitle: Text('JL Padang'),
+        content: Container(),
+        isActive: _currentStep >= 1,
+        state: _currentStep > 1 ? StepState.complete : StepState.indexed,
+      ),
+      // Add more steps here if you have more tracking data
+    ];
   }
 }

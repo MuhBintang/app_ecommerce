@@ -6,6 +6,7 @@ import 'package:app_ecommerce/screens/category/category_sneaker.dart';
 import 'package:app_ecommerce/screens/category/category_sport.dart';
 import 'package:app_ecommerce/screens/category/category_wanita.dart';
 import 'package:app_ecommerce/screens/home/list_all_scren.dart';
+import 'package:app_ecommerce/screens/my_cart/history_payment.dart';
 import 'package:app_ecommerce/screens/my_cart/order_tracking_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -144,6 +145,7 @@ class _HomeScreenState extends State<HomeScreen>{
                         icon: Icon(Icons.history), // Icon untuk riwayat
                         onPressed: () {
                           // Navigator.push(context, MaterialPageRoute(builder: (context) => CheckoutScreen(products: products)));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => HistoryPaymentScreen()));
                         },
                       ),
                     ],

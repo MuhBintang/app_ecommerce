@@ -39,12 +39,13 @@ class _MyCartScreenState extends State<MyCartScreen> {
       setState(() {
         isLoading = true;
       });
-      http.Response res = await http.get(Uri.parse('$url/listaddtocart.php?id_user=$id'));
+      http.Response res =
+          await http.get(Uri.parse('$url/listaddtocart.php?id_user=$id'));
       List<Datum> data = modelListCartFromJson(res.body).data ?? [];
       setState(() {
         _allCart = data;
         _quantities = {
-          for (var item in _allCart) item.productId: item.productStock,
+          for (var item in _allCart) item.productId: 1,
         };
         isLoading = false;
       });
@@ -131,9 +132,12 @@ class _MyCartScreenState extends State<MyCartScreen> {
                     itemCount: _allCart.length,
                     itemBuilder: (context, index) {
                       Datum product = _allCart[index];
+                      int price = int.tryParse(product.productPrice ?? '') ?? 0;
+                      int quantity = _quantities[product.productId] ?? 1;
                       return Card(
                         color: Colors.white,
-                        margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                        margin:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                         child: ListTile(
                           leading: GestureDetector(
                             onTap: () {
@@ -157,36 +161,48 @@ class _MyCartScreenState extends State<MyCartScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    // Text(
-                                    //   product.productName,
-                                    //   style: TextStyle(
-                                    //     fontWeight: FontWeight.bold,
-                                    //     fontSize: 16,
-                                    //   ),
-                                    // ),
-                                    SizedBox(height: 25,),
+                                    Text(
+                                      product.productName,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 25,
+                                    ),
                                     Row(
                                       children: [
                                         IncrementDecrementFormField<int>(
-                                          initialValue: _quantities[product.productId] ?? 1,
+                                          initialValue:
+                                              _quantities[product.productId] ??
+                                                  1,
                                           displayBuilder: (value, field) {
                                             return Text(
-                                              value == null ? "0" : value.toString(),
+                                              value == null
+                                                  ? "0"
+                                                  : value.toString(),
                                             );
                                           },
                                           onDecrement: (currentValue) {
-                                            int newValue = (currentValue! > 1) ? currentValue - 1 : 1;
+                                            int newValue = (currentValue! > 1)
+                                                ? currentValue - 1
+                                                : 1;
                                             setState(() {
-                                              _quantities[product.productId] = newValue;
-                                              _allCart[index].productStock = newValue;
+                                              _quantities[product.productId] =
+                                                  newValue;
+                                              _allCart[index].productStock =
+                                                  newValue;
                                             });
                                             return newValue;
                                           },
                                           onIncrement: (currentValue) {
                                             int newValue = currentValue! + 1;
                                             setState(() {
-                                              _quantities[product.productId] = newValue;
-                                              _allCart[index].productStock = newValue;
+                                              _quantities[product.productId] =
+                                                  newValue;
+                                              _allCart[index].productStock =
+                                                  newValue;
                                             });
                                             return newValue;
                                           },
@@ -197,7 +213,7 @@ class _MyCartScreenState extends State<MyCartScreen> {
                                 ),
                               ),
                               Text(
-                                formatCurrency(int.parse(product.productPrice) * product.productStock),
+                                formatCurrency(price * quantity),
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -251,7 +267,8 @@ class _MyCartScreenState extends State<MyCartScreen> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                     ),
                   ),
                 ),

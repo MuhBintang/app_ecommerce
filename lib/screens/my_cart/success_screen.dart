@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SuccessPage extends StatefulWidget {
   final int? orderId;
-  const SuccessPage(this.orderId, {super.key});
+  const SuccessPage(this.orderId, {Key? key}) : super(key: key);
 
   @override
   State<SuccessPage> createState() => _SuccessPageState();
@@ -25,7 +25,6 @@ class _SuccessPageState extends State<SuccessPage> {
     setState(() {
       id = pref.getString("id") ?? '';
       username = pref.getString("username") ?? '';
-      // print('id $id');
     });
   }
 
@@ -65,10 +64,20 @@ class _SuccessPageState extends State<SuccessPage> {
         setState(() {
           isLoading = false;
           Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const BottomNavBar()),
-              (route) => false);
+            context,
+            MaterialPageRoute(builder: (context) => const BottomNavBar()),
+            (route) => false,
+          );
         });
+
+        // Tampilkan notifikasi pop-up
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Pembayaran telah berhasil'),
+            backgroundColor: Colors.green, // Warna hijau
+            duration: Duration(seconds: 2), // Durasi notifikasi
+          ),
+        );
       } else if (data.isSuccess == false) {
         setState(() {
           isLoading = false;
@@ -81,7 +90,6 @@ class _SuccessPageState extends State<SuccessPage> {
         });
       }
     } catch (e) {
-      //munculkan error
       setState(() {
         isLoading = false;
         ScaffoldMessenger.of(context)
@@ -92,10 +100,7 @@ class _SuccessPageState extends State<SuccessPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
-    // getProduct();
     getSession();
-    // update();
     super.initState();
   }
 
@@ -103,18 +108,21 @@ class _SuccessPageState extends State<SuccessPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-                onPressed: () async {
-                  update();
-                },
-                child: Text('Back to Home')),
-          ],
-        )
-      ]),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () async {
+            update();
+          },
+          style: ElevatedButton.styleFrom(primary: Color(0xFFEB3C3C)),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'Back to Home',
+              style: TextStyle(fontSize: 20),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
